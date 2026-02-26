@@ -1,0 +1,17 @@
+.git
+node_modules
+vendor
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/app/public
+public/storage
+.env
+.env.*
+.phpunit.cache
+.phpunit.result.cache
+npm-debug.log*
+yarn-error.log*
+public/hot
+public/build

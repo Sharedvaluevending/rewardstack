@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <coverage>
+        <report>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
+            <html outputDirectory="build/coverage"/>
+        </report>
+    </coverage>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+
+        <!-- Keep tests deterministic in Docker -->
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+
+        <!-- Use MySQL in Docker (pdo_sqlite is not installed in our image) -->
+        <env name="DB_CONNECTION" value="mysql"/>
+        <env name="DB_HOST" value="db"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_DATABASE" value="rewardstack_test"/>
+        <env name="DB_USERNAME" value="rewardstack"/>
+        <env name="DB_PASSWORD" value="rewardstack"/>
+
+        <!-- Always test keys only -->
+        <env name="STRIPE_KEY" value="pk_test_fake"/>
+        <env name="STRIPE_SECRET" value="sk_test_fake"/>
+        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_fake"/>
+        <env name="STRIPE_CONNECT_ENABLED" value="false"/>
+        <env name="PRINTFUL_API_KEY" value="test_key"/>
+        <env name="SENDGRID_API_KEY" value="test_key"/>
+    </php>
+</phpunit>
+

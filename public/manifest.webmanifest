@@ -1,0 +1,24 @@
+{
+  "name": "Revenue QR",
+  "short_name": "RevenueQR",
+  "description": "Customer portal for rewards, games, and referrals.",
+  "start_url": "/portal/",
+  "scope": "/portal/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#8B5CF6",
+  "icons": [
+    {
+      "src": "/pwa/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+      deploy_mode:
+        description: 'Deploy mode'
+        required: true
+        type: choice
+        options:
+          - in_place
+          - release
+
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    # GitHub Environments can enforce approvals for production.
+    environment: ${{ inputs.environment }}
+
+    # Guardrail: do nothing unless required secrets exist.
+    if: ${{ (inputs.environment == 'staging' && secrets.STAGING_HOST != '' && secrets.STAGING_SSH_KEY != '' && secrets.STAGING_USER != '' && secrets.STAGING_PATH != '' && secrets.STAGING_URL != '') || (inputs.environment == 'production' && secrets.PROD_HOST != '' && secrets.PROD_SSH_KEY != '' && secrets.PROD_USER != '' && secrets.PROD_PATH != '' && secrets.PROD_URL != '') }}
+
+    steps:
+      - name: Checkout (for scripts/docs only)
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ inputs.environment == 'staging' && secrets.STAGING_HOST || secrets.PROD_HOST }}
+          username: ${{ inputs.environment == 'staging' && secrets.STAGING_USER || secrets.PROD_USER }}
+          key: ${{ inputs.environment == 'staging' && secrets.STAGING_SSH_KEY || secrets.PROD_SSH_KEY }}
+          port: ${{ inputs.environment == 'staging' && secrets.STAGING_PORT || secrets.PROD_PORT || 22 }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            APP_DIR="${{ inputs.environment == 'staging' && secrets.STAGING_PATH || secrets.PROD_PATH }}"
+            APP_URL="${{ inputs.environment == 'staging' && secrets.STAGING_URL || secrets.PROD_URL }}"
+
+            echo "==> cd $APP_DIR"
+            cd "$APP_DIR"
+
+            echo "==> Fetch + checkout commit: $GITHUB_SHA"
+            git fetch --all --prune
+            git checkout --force "$GITHUB_SHA"
+
+            echo "==> Deploy"
+            export APP_URL="$APP_URL"
+
+            if [ "${{ inputs.deploy_mode }}" = "release" ]; then
+              echo "==> Release deploy"
+              export RELEASE_BASE="${{ inputs.environment == 'staging' && secrets.STAGING_RELEASE_BASE || secrets.PROD_RELEASE_BASE }}"
+              ./scripts/release-deploy.sh
+            else
+              echo "==> In-place deploy"
+              ./scripts/deploy.sh
+            fi
+
+      - name: Post-deploy smoke
+        run: |
+          set -euo pipefail
+          URL="${{ inputs.environment == 'staging' && secrets.STAGING_URL || secrets.PROD_URL }}"
+          echo "Hitting $URL/health"
+          curl -fsS "$URL/health" | head -c 300
+
+  missing-secrets:
+    name: Missing deploy secrets
+    runs-on: ubuntu-latest
+    if: ${{ (inputs.environment == 'staging' && (secrets.STAGING_HOST == '' || secrets.STAGING_SSH_KEY == '' || secrets.STAGING_USER == '' || secrets.STAGING_PATH == '' || secrets.STAGING_URL == '')) || (inputs.environment == 'production' && (secrets.PROD_HOST == '' || secrets.PROD_SSH_KEY == '' || secrets.PROD_USER == '' || secrets.PROD_PATH == '' || secrets.PROD_URL == '')) }}
+    steps:
+      - name: Explain
+        run: |
+          echo "Deploy workflow is configured but secrets are missing."
+          echo "See docs/CI_CD.md for the required secrets."

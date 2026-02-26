@@ -1,0 +1,2 @@
+# Serve .avery files as ZIP archives so Avery DPO can download them.
+AddType application/zip .avery

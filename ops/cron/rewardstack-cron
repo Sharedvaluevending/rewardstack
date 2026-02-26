@@ -1,0 +1,5 @@
+# Run Laravel scheduler every minute
+* * * * * www-data cd /var/www/rewardstack-app/current && /usr/bin/php artisan schedule:run --no-interaction >> /var/www/rewardstack-app/shared/storage/logs/cron-schedule.log 2>&1
+
+# Daily DB backup at 02:15
+15 2 * * * root /var/www/rewardstack/scripts/backup-database.sh /var/www/rewardstack-app/shared/.env >> /var/www/rewardstack-app/shared/storage/logs/cron-backup.log 2>&1
