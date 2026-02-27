@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
         $authUser = $user;
         $unreadCount = $user ? $this->cachedUnreadNotificationsCount($user) : 0;
         $notifications = $user ? $this->cachedUnreadNotifications($user) : [];
+        $portalBadges = $user ? $this->cachedPortalBadges($user) : ['home' => 0, 'scans' => 0, 'games' => 0, 'merch' => 0, 'referrals' => 0];
 
         $ziggyBase = Cache::remember('ziggy.routes', self::ZIGGY_CACHE_TTL, fn () => (new Ziggy)->toArray());
 
@@ -56,6 +57,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $authUser,
                 'unreadNotificationsCount' => $unreadCount,
                 'notifications' => $notifications,
+                'portalBadges' => $portalBadges,
             ],
             'ziggy' => fn () => [
                 ...$ziggyBase,
@@ -88,6 +90,29 @@ class HandleInertiaRequests extends Middleware
             'inertia.notifications.' . $user->id,
             self::NOTIFICATIONS_CACHE_TTL,
             fn () => $user->unreadNotifications()->limit(10)->get()
+        );
+    }
+
+    private function cachedPortalBadges($user): array
+    {
+        return Cache::remember(
+            'inertia.portal_badges.' . $user->id,
+            self::NOTIFICATIONS_CACHE_TTL,
+            function () use ($user) {
+                $badges = ['home' => 0, 'scans' => 0, 'games' => 0, 'merch' => 0, 'referrals' => 0];
+                $unread = $user->unreadNotifications()->get();
+                foreach ($unread as $n) {
+                    $type = $n->data['type'] ?? null;
+                    if (in_array($type, ['punch_card_completed', 'promo_token_awarded', 'leaderboard_prize', 'reward_won', 'reward_expiring'])) {
+                        $badges['scans']++;
+                    } elseif ($type === 'merch_referral_reward') {
+                        $badges['merch']++;
+                    } elseif (in_array($type, ['referral_commission_earned', 'referral_commission_reversed', 'referral_business_upgraded', 'referral_business_cancelled'])) {
+                        $badges['referrals']++;
+                    }
+                }
+                return $badges;
+            }
         );
     }
 }

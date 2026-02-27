@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import PunchCardProgress from '@/Components/PunchCardProgress.vue';
+import ScrollDownIndicator from '@/Components/ScrollDownIndicator.vue';
 import { collectAndSendScanGeo } from '@/utils/scanGeo';
 
 const page = usePage();
@@ -362,6 +363,10 @@ const toggleSave = async () => {
     <Head :title="promotion?.name || 'Promotion'" />
 
     <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <!-- Fixed scroll indicator at bottom of viewport (when promotion is available) -->
+        <div v-if="isAvailable" class="fixed bottom-8 left-0 right-0 z-30 pointer-events-none flex justify-center">
+            <ScrollDownIndicator />
+        </div>
         <div class="w-full max-w-md">
             
             <!-- Offer No Longer Available -->

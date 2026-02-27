@@ -84,6 +84,13 @@ const formatNumber = (num) => {
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num?.toString() || '0';
 };
+
+const showOnboardingAgain = () => {
+    if (typeof window !== 'undefined') {
+        window.localStorage?.removeItem('portal_onboarding_v1_completed');
+    }
+    router.visit('/portal?show_onboarding=1');
+};
 </script>
 
 <template>
@@ -328,8 +335,19 @@ const formatNumber = (num) => {
             </div>
         </div>
 
-        <!-- Logout -->
+        <!-- Re-show onboarding popups -->
         <div class="mt-8">
+            <button
+                type="button"
+                @click="showOnboardingAgain"
+                class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-gray-300 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+            >
+                <span>Re-show onboarding popups</span>
+            </button>
+        </div>
+
+        <!-- Logout -->
+        <div class="mt-4">
             <Link href="/logout" method="post" as="button"
                 class="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-gray-300 hover:bg-white/10 transition-colors">
                 Sign Out

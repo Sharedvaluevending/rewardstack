@@ -29,5 +29,6 @@ class NotificationController extends Controller
     {
         Cache::forget('inertia.unread_notifications.' . $userId);
         Cache::forget('inertia.notifications.' . $userId);
+        Cache::forget('inertia.portal_badges.' . $userId);
     }
 }
