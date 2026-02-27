@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ inputs.environment == 'staging' && secrets.STAGING_HOST || secrets.PROD_HOST }}
           username: ${{ inputs.environment == 'staging' && secrets.STAGING_USER || secrets.PROD_USER }}
