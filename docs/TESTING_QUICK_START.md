@@ -35,6 +35,20 @@ php artisan test --coverage --min=70
 bash scripts/run-tests.sh
 ```
 
+### Full App Test (Excluding Stripe & Merch)
+
+When you need full app coverage without Stripe or merch integration tests:
+
+```bash
+# Run full test suite excluding Stripe and merch
+./scripts/run-full-test-no-stripe-merch.sh
+
+# Or via Composer
+composer test:full-no-stripe-merch
+```
+
+This runs ~216 PHP test files plus JS tests, excluding Stripe*, Merch*, Billing, Printful, and related tests.
+
 ## Test Structure
 
 ```
