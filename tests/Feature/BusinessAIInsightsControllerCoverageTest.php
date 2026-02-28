@@ -560,6 +560,9 @@ class BusinessAIInsightsControllerCoverageTest extends TestCase
             ->shouldReceive('forget')
             ->andThrow(new \RuntimeException('cache boom'));
 
+        // Bypass HandleInertiaRequests so Cache mock doesn't break middleware's Cache::remember
+        $this->withoutMiddleware(\App\Http\Middleware\HandleInertiaRequests::class);
+
         $this->actingAs($owner)
             ->postJson('/business/ai-insights/generate', [
                 'type' => 'basic',
@@ -584,6 +587,9 @@ class BusinessAIInsightsControllerCoverageTest extends TestCase
             ->shouldReceive('forget')
             ->andThrow(new \RuntimeException('cache boom'));
 
+        // Bypass HandleInertiaRequests so Cache mock doesn't break middleware's Cache::remember
+        $this->withoutMiddleware(\App\Http\Middleware\HandleInertiaRequests::class);
+
         $this->actingAs($owner)
             ->withHeaders(['X-Inertia' => 'true'])
             ->post('/business/ai-insights/generate', [
@@ -605,6 +611,9 @@ class BusinessAIInsightsControllerCoverageTest extends TestCase
         Cache::partialMock()
             ->shouldReceive('get')
             ->andThrow(new \RuntimeException('cache boom'));
+
+        // Bypass HandleInertiaRequests so Cache mock doesn't break middleware's Cache::remember
+        $this->withoutMiddleware(\App\Http\Middleware\HandleInertiaRequests::class);
 
         $this->actingAs($owner)
             ->get('/business/ai-insights/advanced?period=90')
