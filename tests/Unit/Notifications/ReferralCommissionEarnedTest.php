@@ -14,7 +14,7 @@ class ReferralCommissionEarnedTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_via_returns_mail_channel(): void
+    public function test_via_returns_mail_and_database_channels(): void
     {
         $referrer = User::factory()->create();
         $business = Business::factory()->create();
@@ -37,6 +37,6 @@ class ReferralCommissionEarnedTest extends TestCase
             'status' => 'pending',
         ]);
         $notification = new ReferralCommissionEarned($commission);
-        $this->assertSame(['mail'], $notification->via(new \stdClass()));
+        $this->assertSame(['mail', 'database'], $notification->via(new \stdClass()));
     }
 }

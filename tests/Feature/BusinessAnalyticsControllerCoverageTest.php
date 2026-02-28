@@ -34,6 +34,12 @@ class BusinessAnalyticsControllerCoverageTest extends TestCase
 
         Cache::flush();
         Http::preventStrayRequests();
+
+        // Clear Business plan cache so SubscriptionPlan lookups are fresh (avoids stale cache from other tests)
+        $ref = new \ReflectionClass(Business::class);
+        $prop = $ref->getProperty('planCache');
+        $prop->setAccessible(true);
+        $prop->setValue(null, []);
     }
 
     protected function makeBusinessOwner(array $businessOverrides = []): array
@@ -256,8 +262,13 @@ class BusinessAnalyticsControllerCoverageTest extends TestCase
 
         $resp = $this->actingAs($owner)->get('/business/analytics?period=30');
         $resp->assertStatus(200);
-        $resp->assertSee('Basic Growth Insight');
-        $resp->assertDontSee('Advanced Growth Insight');
+        // Extract insights from Inertia data-page JSON
+        preg_match('/data-page="([^"]+)"/', $resp->getContent(), $m);
+        $page = $m ? json_decode(html_entity_decode($m[1]), true) : [];
+        $insights = $page['props']['insights'] ?? [];
+        $titles = array_column($insights, 'title');
+        $this->assertContains('Basic Growth Insight', $titles, 'Growth tier should show basic insights');
+        $this->assertNotContains('Advanced Growth Insight', $titles, 'Growth tier should filter out advanced insights');
     }
 
     public function test_index_generates_basic_insights_from_data_when_no_ai_insights_exist(): void

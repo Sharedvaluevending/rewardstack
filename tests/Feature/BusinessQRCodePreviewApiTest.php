@@ -29,10 +29,12 @@ class BusinessQRCodePreviewApiTest extends TestCase
                 ],
             ]);
 
-        $response->assertStatus(200)->assertJsonStructure(['preview']);
-        $preview = $response->json('preview');
-        $this->assertIsString($preview);
-        $this->assertStringStartsWith('data:image/png;base64,', $preview);
+        // API returns raw PNG binary (not JSON) for performance
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'image/png');
+        $png = $response->getContent();
+        $this->assertNotEmpty($png);
+        $this->assertStringStartsWith("\x89PNG", $png, 'Response should be valid PNG binary');
     }
 }
 

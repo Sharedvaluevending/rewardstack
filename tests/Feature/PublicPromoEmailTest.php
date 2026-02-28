@@ -36,7 +36,8 @@ class PublicPromoEmailTest extends TestCase
         ]);
 
         $resp->assertStatus(200)->assertJson(['success' => true]);
-        Mail::assertSent(\App\Mail\PromoLinkEmail::class, 1);
+        // PromoLinkEmail implements ShouldQueue, so Mail::fake() records it as queued
+        Mail::assertQueued(\App\Mail\PromoLinkEmail::class, 1);
     }
 
     public function test_promo_email_endpoint_returns_404_for_missing_promo(): void

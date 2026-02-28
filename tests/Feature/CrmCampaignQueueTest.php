@@ -54,7 +54,8 @@ class CrmCampaignQueueTest extends TestCase
         $resp->assertStatus(302);
 
         $campaign->refresh();
-        $this->assertSame(CrmCampaign::STATUS_SENDING, $campaign->status);
+        // Controller sets status to SENT after dispatching (sync runs jobs immediately)
+        $this->assertSame(CrmCampaign::STATUS_SENT, $campaign->status);
         $this->assertSame(1, (int) $campaign->recipients_total);
 
         $message = CrmMessage::query()->where('campaign_id', $campaign->id)->where('user_id', $customer->id)->first();
