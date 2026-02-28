@@ -1,0 +1,21 @@
+# Minimal dev: just DB + Redis. Run app with: php artisan serve --port=8001
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: rewardstack
+      MYSQL_USER: rewardstack
+      MYSQL_PASSWORD: rewardstack
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - rewardstack_dev_db:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
+volumes:
+  rewardstack_dev_db:

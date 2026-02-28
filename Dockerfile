@@ -1,21 +1,23 @@
 # syntax=docker/dockerfile:1
 
+# --- Install PHP dependencies (must be before node_build for Ziggy) ---
+FROM composer:2 AS composer_build
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
+
 # --- Build frontend assets ---
 FROM node:20-alpine AS node_build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY resources ./resources
-COPY vite.config.js postcss.config.js ./
+COPY vite.config.js postcss.config.js tailwind.config.js ./
 # Laravel Vite plugin expects a few paths
 COPY public ./public
+# Ziggy (routes) is in vendor - need it for Vite build
+COPY --from=composer_build /app/vendor ./vendor
 RUN npm run build
-
-# --- Install PHP dependencies ---
-FROM composer:2 AS composer_build
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 # --- Runtime image ---
 FROM php:8.3-fpm-bookworm
