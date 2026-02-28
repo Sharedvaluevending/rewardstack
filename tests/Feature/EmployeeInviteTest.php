@@ -44,7 +44,8 @@ class EmployeeInviteTest extends TestCase
         $response->assertRedirect(route('business.employees.index'));
         $response->assertSessionHas('success');
 
-        Mail::assertSent(EmployeeInvitation::class, function ($mail) {
+        // EmployeeInvitation implements ShouldQueue, so Mail::fake() records it as queued
+        Mail::assertQueued(EmployeeInvitation::class, function ($mail) {
             return $mail->hasTo('newstaff@example.com') &&
                    $mail->invite->business_id === $this->business->id;
         });
@@ -72,7 +73,8 @@ class EmployeeInviteTest extends TestCase
 
         $response->assertSessionHas('success');
 
-        Mail::assertSent(EmployeeInvitation::class, function ($mail) use ($invite) {
+        // EmployeeInvitation implements ShouldQueue, so Mail::fake() records it as queued
+        Mail::assertQueued(EmployeeInvitation::class, function ($mail) use ($invite) {
             return $mail->hasTo('pending@example.com') &&
                    $mail->invite->id === $invite->id;
         });

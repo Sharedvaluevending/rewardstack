@@ -17,5 +17,12 @@ abstract class TestCase extends BaseTestCase
         // Force it here so tests are deterministic.
         $this->app->detectEnvironment(fn () => 'testing');
         config()->set('app.env', 'testing');
+
+        // Override config that may come from dev .env (QUEUE_CONNECTION=redis, CACHE_DRIVER=redis, etc.)
+        // so tests run consistently in dev folders without a dedicated .env.testing.
+        config()->set('queue.default', 'sync');
+        config()->set('cache.default', 'array');
+        config()->set('mail.default', 'array');
+        config()->set('session.driver', 'array');
     }
 }
