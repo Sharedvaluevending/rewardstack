@@ -90,7 +90,7 @@ class BusinessEmployeesInvitesTest extends TestCase
             ->assertSessionHasErrors(['limit']);
     }
 
-    public function test_business_cannot_invite_same_email_twice_when_pending(): void
+    public function test_business_inviting_same_email_twice_when_pending_resends_invite(): void
     {
         $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
@@ -103,15 +103,20 @@ class BusinessEmployeesInvitesTest extends TestCase
                 'email' => 'dup@example.com',
                 'role' => 'employee',
             ])
-            ->assertStatus(302);
+            ->assertStatus(302)
+            ->assertSessionHas('invite_url');
 
+        // Second invite for same email resends (does not error)
         $this->actingAs($owner)
             ->post('/business/employees', [
                 'email' => 'dup@example.com',
                 'role' => 'employee',
             ])
             ->assertStatus(302)
-            ->assertSessionHasErrors(['email']);
+            ->assertSessionHas('success')
+            ->assertSessionHas('invite_url');
+
+        $this->assertSame(1, EmployeeInvite::where('business_id', $business->id)->where('email', 'dup@example.com')->count());
     }
 }
 

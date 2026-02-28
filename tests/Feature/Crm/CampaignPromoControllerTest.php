@@ -36,6 +36,8 @@ class CampaignPromoControllerTest extends TestCase
     {
         $business = Business::factory()->create();
         $user = User::factory()->create(['role' => 'user']);
+        $token = \Illuminate\Support\Str::random(48);
+        $otherPromo = Promotion::factory()->create(['business_id' => $business->id]);
         $campaign = CrmCampaign::create([
             'business_id' => $business->id,
             'name' => 'Test Campaign',
@@ -43,7 +45,7 @@ class CampaignPromoControllerTest extends TestCase
             'content_html' => '<p>Test</p>',
             'content_text' => 'Test',
             'status' => CrmCampaign::STATUS_SENT,
-            'promotion_id' => null,
+            'promotion_id' => $otherPromo->id,
         ]);
         $message = CrmMessage::create([
             'business_id' => $business->id,
@@ -51,14 +53,17 @@ class CampaignPromoControllerTest extends TestCase
             'user_id' => $user->id,
             'email' => $user->email,
             'status' => 'sent',
+            'promo_link_token' => $token,
         ]);
 
+        // Request promo 999 but campaign has different promotion
         $url = URL::signedRoute('crm.campaigns.promo.save', [
             'campaign' => $campaign->id,
             'message' => $message->id,
             'promo' => 999,
             'user' => $user->id,
             'business' => $business->id,
+            'token' => $token,
         ]);
 
         $response = $this->get($url);
@@ -72,6 +77,7 @@ class CampaignPromoControllerTest extends TestCase
         $business = Business::factory()->create();
         $user = User::factory()->create(['role' => 'user']);
         $otherUser = User::factory()->create(['role' => 'user']);
+        $token = \Illuminate\Support\Str::random(48);
         $promotion = Promotion::factory()->create([
             'business_id' => $business->id,
             'is_active' => true,
@@ -93,6 +99,7 @@ class CampaignPromoControllerTest extends TestCase
             'user_id' => $user->id,
             'email' => $user->email,
             'status' => 'sent',
+            'promo_link_token' => $token,
         ]);
 
         // Use otherUser in URL (wrong user)
@@ -102,6 +109,7 @@ class CampaignPromoControllerTest extends TestCase
             'promo' => $promotion->id,
             'user' => $otherUser->id,
             'business' => $business->id,
+            'token' => $token,
         ]);
 
         $response = $this->get($url);
@@ -114,6 +122,7 @@ class CampaignPromoControllerTest extends TestCase
     {
         $business = Business::factory()->create();
         $user = User::factory()->create(['role' => 'user']);
+        $token = \Illuminate\Support\Str::random(48);
         $promotion = Promotion::factory()->create([
             'business_id' => $business->id,
             'is_active' => true,
@@ -135,6 +144,7 @@ class CampaignPromoControllerTest extends TestCase
             'user_id' => $user->id,
             'email' => $user->email,
             'status' => 'sent',
+            'promo_link_token' => $token,
         ]);
 
         $url = URL::signedRoute('crm.campaigns.promo.save', [
@@ -143,6 +153,7 @@ class CampaignPromoControllerTest extends TestCase
             'promo' => $promotion->id,
             'user' => $user->id,
             'business' => $business->id,
+            'token' => $token,
         ]);
 
         $response = $this->get($url);
@@ -155,6 +166,7 @@ class CampaignPromoControllerTest extends TestCase
     {
         $business = Business::factory()->create();
         $user = User::factory()->create(['role' => 'user']);
+        $token = \Illuminate\Support\Str::random(48);
         $promotion = Promotion::factory()->create([
             'business_id' => $business->id,
             'is_active' => true,
@@ -177,6 +189,7 @@ class CampaignPromoControllerTest extends TestCase
             'user_id' => $user->id,
             'email' => $user->email,
             'status' => 'sent',
+            'promo_link_token' => $token,
         ]);
 
         $url = URL::signedRoute('crm.campaigns.promo.save', [
@@ -185,6 +198,7 @@ class CampaignPromoControllerTest extends TestCase
             'promo' => $promotion->id,
             'user' => $user->id,
             'business' => $business->id,
+            'token' => $token,
         ]);
 
         $response = $this->get($url);
@@ -197,6 +211,7 @@ class CampaignPromoControllerTest extends TestCase
     {
         $business = Business::factory()->create();
         $user = User::factory()->create(['role' => 'user']);
+        $token = \Illuminate\Support\Str::random(48);
         $promotion = Promotion::factory()->create([
             'business_id' => $business->id,
             'is_active' => true,
@@ -223,6 +238,7 @@ class CampaignPromoControllerTest extends TestCase
             'user_id' => $user->id,
             'email' => $user->email,
             'status' => 'sent',
+            'promo_link_token' => $token,
         ]);
 
         $url = URL::signedRoute('crm.campaigns.promo.save', [
@@ -231,6 +247,7 @@ class CampaignPromoControllerTest extends TestCase
             'promo' => $promotion->id,
             'user' => $user->id,
             'business' => $business->id,
+            'token' => $token,
         ]);
 
         $response = $this->get($url);
