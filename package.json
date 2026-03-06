@@ -10,7 +10,7 @@
         "test:coverage": "vitest run --coverage"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^5.0.0",
+        "@vitejs/plugin-vue": "^6.0.4",
         "@vue/test-utils": "^2.4.0",
         "@vitest/ui": "^1.0.0",
         "autoprefixer": "^10.4.22",
