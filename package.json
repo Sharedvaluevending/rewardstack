@@ -13,7 +13,7 @@
         "@vitejs/plugin-vue": "^5.0.0",
         "@vue/test-utils": "^2.4.0",
         "@vitest/ui": "^1.0.0",
-        "autoprefixer": "^10.4.22",
+        "autoprefixer": "^10.4.27",
         "axios": "^1.6.4",
         "jsdom": "^23.0.0",
         "laravel-vite-plugin": "^1.0.0",
